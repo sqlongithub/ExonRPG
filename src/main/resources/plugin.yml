@@ -1,0 +1,9 @@
+name: ExonRPG
+version: 1.0
+author: imSQL
+description: The main ExonRPG Plugin
+api-version: 1.16.5
+
+commands:
+
+permissions:
