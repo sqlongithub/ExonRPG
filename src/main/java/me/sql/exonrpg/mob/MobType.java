@@ -1,7 +1,5 @@
 package me.sql.exonrpg.mob;
 
-import com.sun.javafx.scene.control.skin.VirtualFlow;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.ItemStack;
 
@@ -14,14 +12,14 @@ public enum MobType {
 
     private String mobName;
     private EntityType type;
-    private int mobHealth;
+    private int mobMaxHealth;
     private int mobLevel;
     private List<ItemStack> armor;
 
-    MobType(String mobName, EntityType type, int mobHealth, int mobLevel, List<ItemStack> armor) {
+    MobType(String mobName, EntityType type, int mobMaxHealth, int mobLevel, List<ItemStack> armor) {
         this.mobName = mobName;
         this.type = type;
-        this.mobHealth = mobHealth;
+        this.mobMaxHealth = mobMaxHealth;
         this.mobLevel = mobLevel;
         this.armor = armor;
     }
@@ -29,7 +27,7 @@ public enum MobType {
     MobType(String mobName, EntityType type, int mobHealth, int mobLevel) {
         this.mobName = mobName;
         this.type = type;
-        this.mobHealth = mobHealth;
+        this.mobMaxHealth = mobHealth;
         this.mobLevel = mobLevel;
         this.armor = new ArrayList<>();
     }
@@ -37,11 +35,10 @@ public enum MobType {
     public String getName() {
         return this.mobName;
     }
-    public EntityType getType() { return this.type; }
-    public int getHealth() { return this.mobHealth; }
+    public EntityType getEntityType() { return this.type; }
+    public int getMaxHealth() { return this.mobMaxHealth; }
     public int getLevel() { return this.mobLevel; }
     public List<ItemStack> getArmor() { return this.armor; }
-    public Mob newMob() { return Mob.fromType(this); }
 
     public static boolean contains(MobType type) {
         try {

@@ -1,8 +1,8 @@
 package me.sql.exonrpg.damage;
 
 import me.sql.exonrpg.ExonRPG;
+import me.sql.exonrpg.mob.Mob;
 import me.sql.exonrpg.mob.MobMetadata;
-import me.sql.exonrpg.mob.MobType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -19,16 +19,17 @@ public class EntityDamage implements Listener {
         entity.setMetadata(MobMetadata.MOB_HEALTH.toString(), new FixedMetadataValue(ExonRPG.plugin, mobHealth-(blocksFallen/2-1.5)*4));
     }
 
-    private void dealDamage(LivingEntity entity, LivingEntity damager) {
-        int mobHealth = entity.getMetadata(MobMetadata.MOB_HEALTH.toString()).get(0).asInt();
+    private void dealDamage(Mob mob, LivingEntity damager) {
+        int mobHealth = mob.getHealth();
         if(damager instanceof Player) {
             // TODO: Calculate player damage
+            Player ply = (Player) damager;
             int damage = 5;
-            entity.setMetadata(MobMetadata.MOB_HEALTH.toString(), new FixedMetadataValue(ExonRPG.plugin, mobHealth-damage));
+            mob.setHealth(mob.getHealth()-damage);
         } else {
             // TODO: Calculate mob Damage
             int damage = 5;
-            entity.setMetadata(MobMetadata.MOB_HEALTH.toString(), new FixedMetadataValue(ExonRPG.plugin, mobHealth-damage));
+            mob.setHealth(mob.getHealth()-damage);
         }
     }
 
@@ -45,7 +46,7 @@ public class EntityDamage implements Listener {
         if(!(vic.getMetadata(MobMetadata.IS_CUSTOM_MOB.toString()).get(0).asBoolean()))
             return;
 
-        dealDamage(vic, damager);
+        dealDamage(MobMetadata.getMob(vic), damager);
 
     }
 

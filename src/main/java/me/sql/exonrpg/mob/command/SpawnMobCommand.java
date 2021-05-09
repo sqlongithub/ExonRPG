@@ -12,7 +12,7 @@ import org.bukkit.entity.Player;
 
 @CommandAlias("spawnmob")
 @CommandPermission("exonrpg.spawnmob")
-public class SpawnMob extends BaseCommand {
+public class SpawnMobCommand extends BaseCommand {
 
     @Default
     public void summonMob(Player ply, @Single String mobName) {
@@ -27,7 +27,7 @@ public class SpawnMob extends BaseCommand {
                 ply.sendMessage("§cThis mob type is invalid.");
                 return;
             }
-            Mob.fromType(type).spawnAtLocation(spawnLoc);
+            Mob mob = new Mob(type, spawnLoc);
         } catch(NullPointerException e) {
             ply.sendMessage("§cFatal Error trying to get the block you're looking at!");
             return;
