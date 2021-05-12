@@ -2,7 +2,6 @@ package me.sql.exonrpg.damage;
 
 import me.sql.exonrpg.ExonRPG;
 import me.sql.exonrpg.mob.Mob;
-import me.sql.exonrpg.mob.MobMetadata;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -10,27 +9,28 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
-import org.bukkit.metadata.FixedMetadataValue;
 
 public class EntityDamage implements Listener {
 
-    private void dealFallDamage(LivingEntity entity, int blocksFallen) {
-        int mobHealth = entity.getMetadata(MobMetadata.MOB_HEALTH.toString()).get(0).asInt();
-        entity.setMetadata(MobMetadata.MOB_HEALTH.toString(), new FixedMetadataValue(ExonRPG.plugin, mobHealth-(blocksFallen/2-1.5)*4));
+    private void dealFallDamage(Mob mob, int blocksFallen) {
+        if(mob==null) {
+            ExonRPG.error("Tried dealing fall damage to non custom mob. Make sure to check if the mob is custom before dealing fall damage to it");
+            return;
+        }
+        mob.damage((int) ((blocksFallen/2-1.5)*4));
     }
 
     private void dealDamage(Mob mob, LivingEntity damager) {
-        int mobHealth = mob.getHealth();
+        int damage;
         if(damager instanceof Player) {
             // TODO: Calculate player damage
-            Player ply = (Player) damager;
-            int damage = 5;
-            mob.setHealth(mob.getHealth()-damage);
+            // Player ply = (Player) damager;
+            damage = 5;
         } else {
             // TODO: Calculate mob Damage
-            int damage = 5;
-            mob.setHealth(mob.getHealth()-damage);
+            damage = 5;
         }
+        mob.damage(damage);
     }
 
     @EventHandler
@@ -38,25 +38,32 @@ public class EntityDamage implements Listener {
         // Check if both entities are LivingEntities
         if(!(e.getEntity() instanceof LivingEntity && e.getDamager() instanceof LivingEntity))
             return;
-
+        // Check if damage was done by a plugin
+        if(e.getCause().equals(DamageCause.CUSTOM))
+            return;
         LivingEntity vic = (LivingEntity) e.getEntity();
         LivingEntity damager = (LivingEntity) e.getDamager();
 
         // Check if victim is custom mob
-        if(!(vic.getMetadata(MobMetadata.IS_CUSTOM_MOB.toString()).get(0).asBoolean()))
+        Mob mob = ExonRPG.getMob(vic);
+        if(mob==null)
             return;
-
-        dealDamage(MobMetadata.getMob(vic), damager);
+        e.setDamage(0);
+        dealDamage(mob, damager);
 
     }
 
     @EventHandler
     public void onEntityTookFallDamage(EntityDamageEvent e) {
-        if(!e.getCause().equals(DamageCause.FALL) || e.getEntity() instanceof LivingEntity)
+        if(!(e.getCause().equals(DamageCause.FALL)  && e.getEntity() instanceof LivingEntity))
             return;
-        // TODO: Deal falldamage to mob from formula ((blocksfallen/2)-1.5)*4
         LivingEntity entity = (LivingEntity) e.getEntity();
-        dealFallDamage(entity, Math.round(entity.getFallDistance()));
+        Mob mob = ExonRPG.getMob(entity);
+        if(mob==null)
+            return;
+        e.setDamage(0);
+        // TODO: Deal falldamage to mob from formula ((blocksfallen/2)-1.5)*4
+        dealFallDamage(mob, Math.round(entity.getFallDistance()));
 
 
     }

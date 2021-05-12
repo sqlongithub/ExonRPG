@@ -2,8 +2,14 @@ name: ExonRPG
 version: 1.0
 author: imSQL
 description: The main ExonRPG Plugin
-api-version: 1.16.5
+api-version: 1.16
+main: me.sql.exonrpg.ExonRPG
 
 commands:
-
+  spawnmob:
+    description: Spawns a mob
+    permission: exonrpg.mob.spawnmob
 permissions:
+  exonrpg.mob.spawnmob:
+    description: Allows the player to spawn mobs with /spawnmob
+

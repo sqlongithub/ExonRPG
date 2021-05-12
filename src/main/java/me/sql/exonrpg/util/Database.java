@@ -1,12 +1,16 @@
 package me.sql.exonrpg.util;
 
 import me.sql.exonrpg.ExonRPG;
+import org.bukkit.util.FileUtil;
 
+import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class Database {
 
@@ -15,6 +19,52 @@ public class Database {
 
     private Connection dbConnection = null;
     private String dbName = "NOT CONNECTED TO DATABASE";
+
+    private static Timer timer = new Timer();
+    private static boolean isAutosaving = true;
+    private static int autosaveInterval = 60000 * 3;
+
+    public static void toggleAutosave(boolean on) {
+        if(on) {
+            if(isAutosaving)
+                return;
+            timer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    String srcPath = ExonRPG.plugin.getDataFolder().getAbsolutePath()+"db/";
+                    File srcFolder = new File(srcPath);
+                    String destPath = ExonRPG.plugin.getDataFolder().getAbsolutePath()+"db/backup/";
+                    for(File file : srcFolder.listFiles()) {
+                        FileUtil.copy(file, new File(destPath+file.getName()));
+                    }
+                }
+            }, 0, autosaveInterval);
+            isAutosaving = true;
+        } else {
+            timer.cancel();
+            timer.purge();
+            isAutosaving = true;
+        }
+    }
+
+    public static void toggleAutosave() {
+        if(!isAutosaving) {
+            timer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    String srcPath = ExonRPG.plugin.getDataFolder().getAbsolutePath()+"db/";
+                    File srcFolder = new File(srcPath);
+                    String destPath = ExonRPG.plugin.getDataFolder().getAbsolutePath()+"db/backup/";
+                    for(File file : srcFolder.listFiles()) {
+                        FileUtil.copy(file, new File(destPath+file.getName()));
+                    }
+                }
+            }, 0, autosaveInterval);
+        } else {
+            timer.cancel();
+            timer.purge();
+        }
+    }
 
     public void connectToDatabase(String databaseName) {
         if(dbConnection!=null)

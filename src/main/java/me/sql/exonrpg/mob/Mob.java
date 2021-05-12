@@ -28,15 +28,17 @@ public class Mob {
         this.mobLevel = mobType.getLevel();
         this.armor = mobType.getArmor();
         this.mobType = mobType;
+
         Entity e = loc.getWorld().spawnEntity(loc, entityType);
         if(!(e instanceof LivingEntity)) {
             ExonRPG.info("Mob of type "+entityType.toString()+" is not a LivingEntity!");
             return;
         }
         entity = (LivingEntity) e;
-        MobMetadata.setDefaults(entity, this);
         this.location = entity.getLocation();
-        this.entity.setCustomName("§7[Lvl. "+mobLevel+"] §c"+mobName+" §6"+mobHealth+"§b/"+mobType.getMaxHealth());
+        ExonRPG.storeMob(entity, this);
+        updateNametag();
+        entity.setCustomNameVisible(true);
     }
 
 
@@ -64,25 +66,47 @@ public class Mob {
         return this.armor;
     }
 
-    public Location getLocation() { return this.location; }
+    public Location getLocation() {
+        return this.location;
+    }
+
+    public LivingEntity getMobEntity() {
+        return this.entity;
+    }
 
     public void updateNametag() {
-        entity.setCustomName("§7[Lvl. "+mobLevel+"] §c"+mobName+" §6"+mobHealth+"§b/"+mobType.getMaxHealth());
+        if(mobHealth<=mobType.getMaxHealth()*0.4)
+            entity.setCustomName("§7[Lvl. "+mobLevel+"] §6"+mobName+" §c"+mobHealth+"§7/§a"+mobType.getMaxHealth());
+        else
+            entity.setCustomName("§7[Lvl. "+mobLevel+"] §6"+mobName+" §a"+mobHealth+"§7/§a"+mobType.getMaxHealth());
+    }
+
+    public void damage(int damage) {
+        if(damage>=mobHealth) {
+            kill();
+            return;
+        }
+        entity.damage(1);
+        setHealth(mobHealth-damage);
+    }
+
+    public void kill() {
+        mobHealth = 0;
+        updateNametag();
+        entity.damage(entity.getHealth());
+        ExonRPG.deleteMob(entity);
     }
 
     public void setHealth(int health) {
         if(health<=0) {
-            entity.damage(entity.getHealth());
+            kill();
         }
-        this.mobHealth = health;
+        mobHealth = health;
         updateNametag();
-        MobMetadata.setMobHealth(entity, health);
     }
 
     public void setArmor(List<ItemStack> armor) {
         this.armor = armor;
-        MobMetadata.setMobArmor(entity, armor);
-
     }
 
 }

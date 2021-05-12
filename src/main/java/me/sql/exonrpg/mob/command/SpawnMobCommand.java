@@ -10,8 +10,10 @@ import me.sql.exonrpg.mob.MobType;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
+import java.util.Locale;
+
 @CommandAlias("spawnmob")
-@CommandPermission("exonrpg.spawnmob")
+@CommandPermission("exonrpg.mob.spawnmob")
 public class SpawnMobCommand extends BaseCommand {
 
     @Default
@@ -20,18 +22,13 @@ public class SpawnMobCommand extends BaseCommand {
             ply.sendMessage("§cPlease supply a mob name, i.e ZOMBIE");
             return;
         }
-        try {
-            Location spawnLoc = ply.getTargetBlock(2).getRelative(ply.getTargetBlockFace(2)).getLocation();
-            MobType type = MobType.fromName(mobName);
-            if(type==null) {
-                ply.sendMessage("§cThis mob type is invalid.");
-                return;
-            }
-            Mob mob = new Mob(type, spawnLoc);
-        } catch(NullPointerException e) {
-            ply.sendMessage("§cFatal Error trying to get the block you're looking at!");
+        Location spawnLoc = ply.getLocation().add(ply.getLocation().getDirection().multiply(2));
+        MobType type = MobType.fromName(mobName.toUpperCase().replaceAll(" ","_"));
+        if(type==null) {
+            ply.sendMessage("§cThis mob type is invalid.");
             return;
         }
+        Mob mob = new Mob(type, spawnLoc);
     }
 
 }
